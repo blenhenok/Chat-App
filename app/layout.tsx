@@ -1,6 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import ConvexClientProvider from "@/providers/ConvexClientProvider";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -10,7 +9,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ClerkProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          {children}
         </ClerkProvider>
       </body>
     </html>
