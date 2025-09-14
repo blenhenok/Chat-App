@@ -1,5 +1,6 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import ConvexClientProvider from "@/providers/ConvexClientProvider";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -8,9 +9,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClerkProvider>
-          {children}
-        </ClerkProvider>
+        <ConvexClientProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );
