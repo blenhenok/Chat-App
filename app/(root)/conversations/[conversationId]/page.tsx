@@ -1,3 +1,5 @@
+import ConversationContainer from "@/components/shared/conversations/ConversationContainer";
+
 export default function ConversationPage() {
-  return <div>Conversation Page id</div>;
+  return <ConversationContainer>Conversation Page id</ConversationContainer>;
 }
