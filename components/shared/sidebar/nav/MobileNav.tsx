@@ -30,15 +30,19 @@ const MobileNav = () => {
                 <Link href={path.href}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant={path.active ? "default" : "outline"}
-                      >
-                        {path.icon}
-                      </Button>
-                      {path.count ? (
-                        <Badge className="absolute left-7 bottom-6">{path.count}</Badge>
-                      ): null}
+                      <div className="relative">
+                        <Button
+                          size="icon"
+                          variant={path.active ? "default" : "outline"}
+                        >
+                          {path.icon}
+                        </Button>
+                        {path.count ? (
+                          <Badge className="absolute left-7 bottom-6">
+                            {path.count}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{path.name}</p>
