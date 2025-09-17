@@ -1,4 +1,4 @@
-"use Client";
+"use client";
 
 import ConversationContainer from "@/components/shared/conversations/ConversationContainer";
 import { api } from "@/convex/_generated/api";
@@ -8,6 +8,8 @@ import { Loader2 } from "lucide-react";
 import Header from "./_components/Header";
 import Body from "./_components/body/Body";
 import ChatInput from "./_components/input/ChatInput";
+import { SetStateAction, useState } from "react";
+import RemoveFriendDialog from "./_components/dialogs/RemoveFriendDialog";
 
 type Props = {
   params: {
@@ -20,6 +22,11 @@ export default function ConversationPage({
 }: Props) {
   const conversation = useQuery(api.conversation.get, { id: conversationId });
 
+  const [removeFriendDialogOpen, setRemoveFriendDialogOpen] = useState(false);
+  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
+  const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
+  
+
   return conversation === undefined ? (
     <div className="w-full h-full flex items-center justify-center">
       <Loader2 className="h-8 w-8" />
@@ -30,6 +37,9 @@ export default function ConversationPage({
     </p>
   ) : (
     <ConversationContainer>
+      
+      <RemoveFriendDialog conversationId={conversationId} open={removeFriendDialogOpen} setOpen={setRemoveFriendDialogOpen}/>
+     
       <Header
         imageUrl={
           conversation.isGroup ? undefined : conversation.otherMember.imageUrl
@@ -39,6 +49,23 @@ export default function ConversationPage({
             ? conversation.name
             : conversation.otherMember.username) || ""
         }
+        options={conversation.isGroup ? [{
+          label: "Leave Group",
+          destructive: false,
+          onClick: () => setLeaveGroupDialogOpen(true),
+        },
+      {
+          label: "Delete Group",
+          destructive: true,
+          onClick: () => setDeleteGroupDialogOpen(true),
+        },
+      ] : [
+        {
+          label: "Remove Friend",
+          destructive: false,
+          onClick: () => setRemoveFriendDialogOpen(true),
+        },
+      ]}
       />
       <Body />
       <ChatInput />

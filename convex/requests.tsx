@@ -1,13 +1,13 @@
 import { query } from "./_generated/server";
 import { getUserByClerkId } from "./_utils";
-import { ConvexError, v } from "convex/values";
+import { ConvexError } from "convex/values";
 
 export const get = query({
   args: {},
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Unauthorized");
+      return [];
     }
 
     const currentUser = await getUserByClerkId({
@@ -42,7 +42,8 @@ export const count = query({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Unauthorized");
+      // Return 0 if not authenticated
+      return 0;
     }
     const currentUser = await getUserByClerkId({
       ctx,

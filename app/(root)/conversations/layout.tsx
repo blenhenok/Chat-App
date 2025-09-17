@@ -1,4 +1,4 @@
-"use Client";
+ "use client"
 
 import ItemList from "@/components/shared/item-list/ItemList";
 import { api } from "@/convex/_generated/api";
@@ -28,6 +28,8 @@ const ConversationsLayout = ({ children }: Props) => {
                   id={conversations.conversation._id}
                   username={conversations.otherMember?.username || ""}
                   imageUrl={conversations.otherMember?.imageUrl || ""}
+                  lastMessageSender={conversations.lastMessage?.sender}
+                  lastMessageContent={conversations.lastMessage?.content}
                 />
               );
             })

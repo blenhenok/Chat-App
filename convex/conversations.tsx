@@ -1,14 +1,15 @@
 import { ConvexError } from "convex/values";
 import { query } from "./_generated/server";
 import { getUserByClerkId } from "./_utils";
-import { currentUser } from "@clerk/nextjs/server";
+import { Id } from "./_generated/dataModel";
+import type { QueryCtx, MutationCtx } from "./_generated/server";
 
 export const get = query({
   args: {},
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Unauthorized");
+      return [];
     }
 
     const currentUser = await getUserByClerkId({
@@ -44,8 +45,11 @@ export const get = query({
             q.eq("conversationId", conversation?._id)
           ).collect();
 
+
+      const lastMessage = await getLastMessageDetails({ctx, id: conversation.lastMessageId });
+
           if(conversation.isGroup){
-            return {conversation};
+            return {conversation, lastMessage};
           }
           else{
             const otherMembership = allConversationMemberships.filter(
@@ -54,7 +58,7 @@ export const get = query({
 
             const otherMember = await ctx.db.get(otherMembership.memberId)
 
-            return {conversation, otherMember,};
+            return {conversation, otherMember, lastMessage};
           }
       })
     );
@@ -62,3 +66,36 @@ export const get = query({
     return conversationsWithDetails;
   },
 });
+
+
+
+const getLastMessageDetails = async ({
+  ctx,
+  id,
+}: {
+  ctx: QueryCtx | MutationCtx;
+  id: Id<"messages"> | undefined;
+}) => {
+  if(!id) return null;
+
+  const message = await ctx.db.get(id);
+  if(!message) return null;
+
+  const sender = await ctx.db.get(message.senderId);
+  if(!sender) return null;
+
+  const content = getMessageContent(message.type, message.content as unknown as string);
+  return {
+    content,
+    sender: sender.username,
+  };
+}
+
+const getMessageContent = (type: string, content: string) => {
+  switch(type){
+    case "text":
+      return content;
+    default:
+      return "[Non-text]";
+  }
+};

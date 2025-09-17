@@ -31,7 +31,7 @@ export const create = mutation({
       )
       .unique();
     if (!membership) {
-      throw new ConvexError("You are not a ember of this conversation");
+      throw new ConvexError("You are not a member of this conversation");
     }
 
     const message = await ctx.db.insert("messages", {

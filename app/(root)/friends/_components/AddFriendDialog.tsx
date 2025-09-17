@@ -1,4 +1,5 @@
-"use client";
+ "use client"
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,12 +61,12 @@ const AddFriendDialog = () => {
   return (
     <Dialog>
       <Tooltip>
-        <TooltipTrigger>
-          <Button size="icon" variant="outline">
-            <DialogTrigger>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button size="icon" variant="outline">
               <UserPlus />
-            </DialogTrigger>
-          </Button>
+            </Button>
+          </DialogTrigger>
         </TooltipTrigger>
         <TooltipContent>
           <p>Add a new friend</p>
@@ -74,7 +75,7 @@ const AddFriendDialog = () => {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Freind</DialogTitle>
+          <DialogTitle>Add Friend</DialogTitle>
           <DialogDescription>
             Send a request to Connect with your Friends!
           </DialogDescription>
