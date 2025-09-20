@@ -37,37 +37,62 @@ export const get = query({
     );
 
     const conversationsWithDetails = await Promise.all(
-      conversations.map(async(conversation, index) => {
-        const 
-        allConversationMemberships = await ctx.db
+      conversations.map(async (conversation, index) => {
+        const allConversationMemberships = await ctx.db
           .query("conversationMembers")
           .withIndex("by_conversationId", (q) =>
             q.eq("conversationId", conversation?._id)
-          ).collect();
+          )
+          .collect();
 
+        const lastMessage = await getLastMessageDetails({
+          ctx,
+          id: conversation.lastMessageId,
+        });
 
-      const lastMessage = await getLastMessageDetails({ctx, id: conversation.lastMessageId });
+        const lastSeenMessage = conversationMemberships[index].lastSeenMessage
+          ? await ctx.db.get(conversationMemberships[index].lastSeenMessage!)
+          : null;
 
-          if(conversation.isGroup){
-            return {conversation, lastMessage};
-          }
-          else{
-            const otherMembership = allConversationMemberships.filter(
-                (membership) => membership.memberId !== currentUser._id
-            )[0];
+        const lastSeenMessageTime = lastSeenMessage
+          ? lastSeenMessage._creationTime
+          : -1;
 
-            const otherMember = await ctx.db.get(otherMembership.memberId)
+        const unseenMessages = await ctx.db
+          .query("messages")
+          .withIndex("by_conversationId", (q) =>
+            q.eq("conversationId", conversation._id)
+          )
+          .filter((q) => q.gt(q.field("_creationTime"), lastSeenMessageTime))
+          .filter((q) => q.neq(q.field("senderId"), currentUser._id))
+          .collect();
 
-            return {conversation, otherMember, lastMessage};
-          }
+        if (conversation.isGroup) {
+          return {
+            conversation,
+            lastMessage,
+            unseenCount: unseenMessages.length,
+          };
+        } else {
+          const otherMembership = allConversationMemberships.filter(
+            (membership) => membership.memberId !== currentUser._id
+          )[0];
+
+          const otherMember = await ctx.db.get(otherMembership.memberId);
+
+          return {
+            conversation,
+            otherMember,
+            lastMessage,
+            unseenCount: unseenMessages.length,
+          };
+        }
       })
     );
 
     return conversationsWithDetails;
   },
 });
-
-
 
 const getLastMessageDetails = async ({
   ctx,
@@ -76,23 +101,26 @@ const getLastMessageDetails = async ({
   ctx: QueryCtx | MutationCtx;
   id: Id<"messages"> | undefined;
 }) => {
-  if(!id) return null;
+  if (!id) return null;
 
   const message = await ctx.db.get(id);
-  if(!message) return null;
+  if (!message) return null;
 
   const sender = await ctx.db.get(message.senderId);
-  if(!sender) return null;
+  if (!sender) return null;
 
-  const content = getMessageContent(message.type, message.content as unknown as string);
+  const content = getMessageContent(
+    message.type,
+    message.content as unknown as string
+  );
   return {
     content,
     sender: sender.username,
   };
-}
+};
 
 const getMessageContent = (type: string, content: string) => {
-  switch(type){
+  switch (type) {
     case "text":
       return content;
     default:
