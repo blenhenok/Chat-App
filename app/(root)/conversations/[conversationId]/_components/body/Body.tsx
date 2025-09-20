@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { api } from "@/convex/_generated/api";
@@ -18,7 +19,7 @@ type Props = {
   members: {
     lastSeenMessageId?: Id<"messages">;
     username?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   }[];
 };
 
