@@ -24,12 +24,22 @@ export const create = mutation({
       throw new ConvexError("User not Found");
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(args.email)) {
+      throw new ConvexError("Invalid email format");
+    }
+
     const receiver = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_email", (q) =>
+        q.eq("email", args.email.toLowerCase().trim())
+      )
       .unique();
+
     if (!receiver) {
-      throw new ConvexError("User could not be Found");
+      throw new ConvexError(
+        `No user found with email: ${args.email}. Please check the email address or ask the user to create an account.`
+      );
     }
 
     const requestAlreadySent = await ctx.db
