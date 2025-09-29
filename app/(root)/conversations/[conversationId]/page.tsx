@@ -1,3 +1,4 @@
+// app/(root)/conversations/[conversationId]/page.tsx
 "use client";
 
 import ConversationContainer from "@/components/shared/conversations/ConversationContainer";
@@ -12,44 +13,57 @@ import RemoveFriendDialog from "./_components/dialogs/RemoveFriendDialog";
 import DeleteGroupDialog from "./_components/dialogs/DeleteGroupDialog";
 import LeaveGroupDialog from "./_components/dialogs/LeaveGroupDialog";
 import { useState } from "react";
+import React from "react";
 
 type Props = {
-  params: {
-    conversationId: Id<"conversations">;
-  };
+  params: Promise<{
+    conversationId: string;
+  }>;
 };
 
-export default function ConversationPage({
-  params: { conversationId },
-}: Props) {
-  const conversation = useQuery(api.conversation.get, { id: conversationId });
+export default function ConversationPage({ params }: Props) {
+  // Use React.use() to unwrap the params promise (Next.js 15 recommended)
+  const { conversationId } = React.use(params);
+
+  // Convert string ID to Convex ID format
+  const convexId = conversationId as Id<"conversations">;
+
+  const conversation = useQuery(api.conversation.get, { id: convexId });
 
   const [removeFriendDialogOpen, setRemoveFriendDialogOpen] = useState(false);
   const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
   const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
 
-  return conversation === undefined ? (
-    <div className="w-full h-full flex items-center justify-center">
-      <Loader2 className="h-8 w-8" />
-    </div>
-  ) : conversation === null ? (
-    <p className="w-full h-full flex items-center justify-center">
-      Conversation not Found
-    </p>
-  ) : (
+  if (conversation === undefined) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (conversation === null) {
+    return (
+      <p className="w-full h-full flex items-center justify-center">
+        Conversation not Found
+      </p>
+    );
+  }
+
+  return (
     <ConversationContainer>
       <DeleteGroupDialog
-        conversationId={conversationId}
+        conversationId={conversationId as Id<"conversations">}
         open={deleteGroupDialogOpen}
         setOpen={setDeleteGroupDialogOpen}
       />
       <LeaveGroupDialog
-        conversationId={conversationId}
+        conversationId={conversationId as Id<"conversations">}
         open={leaveGroupDialogOpen}
         setOpen={setLeaveGroupDialogOpen}
       />
       <RemoveFriendDialog
-        conversationId={conversationId}
+        conversationId={conversationId as Id<"conversations">}
         open={removeFriendDialogOpen}
         setOpen={setRemoveFriendDialogOpen}
       />

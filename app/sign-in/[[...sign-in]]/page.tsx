@@ -6,8 +6,14 @@ export default function Page() {
       <SignIn
         routing="path"
         path="/sign-in"
-        redirectUrl="/"
-        signUpUrl="/sign-up"
+        redirectUrl="/conversations"
+        appearance={{
+          elements: {
+            footer: {
+              display: "none", 
+            },
+          },
+        }}
       />
     </div>
   );

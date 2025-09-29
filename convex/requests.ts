@@ -4,7 +4,7 @@ import { ConvexError } from "convex/values";
 
 export const get = query({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       return [];
@@ -39,10 +39,9 @@ export const get = query({
 
 export const count = query({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      // Return 0 if not authenticated
       return 0;
     }
     const currentUser = await getUserByClerkId({
