@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -28,6 +29,7 @@ const chatMessageSchema = z.object({
 
 const ChatInput = () => {
   const { conversationId } = useConversation();
+  // FIXED: Use the correct mutation from message.ts
   const { mutate: createMessage, pending } = useMutationState(
     api.message.create
   );
@@ -85,35 +87,37 @@ const ChatInput = () => {
   return (
     <Card className="w-full p-2 rounded-lg relative">
       <div className="flex gap-2 items-end w-full">
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex gap-2 items-end w-full"
-        >
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem className="h-full w-full">
-                <FormControl>
-                  <TextareaAutosize
-                    onKeyDown={handleKeyDown}
-                    rows={1}
-                    maxRows={3}
-                    {...field}
-                    onChange={handleInputChange}
-                    onClick={handleTextAreaClick}
-                    placeholder="Type a Message"
-                    className="min-h-full w-full resize-none border-0 outline-0 bg-card text-card-foreground placeholder:text-muted-foreground p-1.5"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button disabled={pending} type="submit" size="icon">
-            <SendHorizontal />
-          </Button>
-        </form>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex gap-2 items-end w-full"
+          >
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem className="h-full w-full">
+                  <FormControl>
+                    <TextareaAutosize
+                      onKeyDown={handleKeyDown}
+                      rows={1}
+                      maxRows={3}
+                      {...field}
+                      onChange={handleInputChange}
+                      onClick={handleTextAreaClick}
+                      placeholder="Type a Message"
+                      className="min-h-full w-full resize-none border-0 outline-0 bg-card text-card-foreground placeholder:text-muted-foreground p-1.5"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button disabled={pending} type="submit" size="icon">
+              <SendHorizontal />
+            </Button>
+          </form>
+        </Form>
       </div>
     </Card>
   );

@@ -2,7 +2,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Id } from "@/convex/_generated/dataModel";
-import { Link, User } from "lucide-react";
+import { User } from "lucide-react"; // Remove Link from here
+import Link from "next/link"; // Add separate import for Next.js Link
 import React from "react";
 
 type Props = {
@@ -24,7 +25,7 @@ const DMConversationItem = ({
 }: Props) => {
   return (
     <Link href={`/conversations/${id}`} className="w-full">
-      <Card className="p-2 flex flex-row items-center justify-between">
+      <Card className="p-2 flex flex-row items-center justify-between hover:bg-secondary/50 transition-colors">
         <div className="flex flex-row items-center gap-4 truncate">
           <Avatar>
             <AvatarImage src={imageUrl} />
@@ -33,12 +34,14 @@ const DMConversationItem = ({
             </AvatarFallback>
           </Avatar>
 
-          <div className="flex flex-col truncate">
-            <h4 className="truncate">{username}</h4>
+          <div className="flex flex-col truncate flex-1 min-w-0">
+            <h4 className="truncate font-medium">{username}</h4>
             {lastMessageSender && lastMessageContent ? (
-              <span className="text-sm text-muted-foreground flex truncate overflow-ellipsis">
-                <p className="font-semibold">{lastMessageSender} {":"} &nbsp;</p>
-                <p className="truncate overflow-ellipsis">{lastMessageContent}</p>
+              <span className="text-sm text-muted-foreground flex truncate">
+                <p className="font-semibold truncate">
+                  {lastMessageSender}:&nbsp;
+                </p>
+                <p className="truncate flex-1">{lastMessageContent}</p>
               </span>
             ) : (
               <p className="text-sm text-muted-foreground truncate">
@@ -47,7 +50,7 @@ const DMConversationItem = ({
             )}
           </div>
         </div>
-        {unseenCount ? <Badge>{unseenCount}</Badge> : null}
+        {unseenCount > 0 ? <Badge>{unseenCount}</Badge> : null}
       </Card>
     </Link>
   );

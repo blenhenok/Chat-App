@@ -1,4 +1,4 @@
- "use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +10,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { UserPlus } from "lucide-react";
-import { TooltipContent } from "@/components/ui/tooltip";
 import {
   Form,
   FormControl,
@@ -28,6 +31,8 @@ import { useMutationState } from "@/hooks/useMutationState";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { ConvexError } from "convex/values";
+import { Input } from "@/components/ui/input";
+
 const addFriendFormSchema = z.object({
   email: z
     .string()
@@ -36,6 +41,7 @@ const addFriendFormSchema = z.object({
 });
 
 const AddFriendDialog = () => {
+  // FIXED: Use the correct mutation from requests.ts
   const { mutate: createRequest, pending } = useMutationState(
     api.request.create
   );
@@ -51,11 +57,15 @@ const AddFriendDialog = () => {
     await createRequest({ email: values.email })
       .then(() => {
         form.reset();
-		toast.success("Friend Request Sent!");
+        toast.success("Friend Request Sent!");
       })
       .catch((error) => {
-        toast.error(error instanceof ConvexError ? error.data : "Unexpected error occured");
-      })
+        toast.error(
+          error instanceof ConvexError
+            ? error.data
+            : "Unexpected error occurred"
+        );
+      });
   };
 
   return (
@@ -92,7 +102,7 @@ const AddFriendDialog = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <input placeholder="Email..." {...field} />
+                    <Input placeholder="Email..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

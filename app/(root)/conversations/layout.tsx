@@ -1,4 +1,4 @@
- "use client"
+"use client";
 
 import ItemList from "@/components/shared/item-list/ItemList";
 import { api } from "@/convex/_generated/api";
@@ -14,40 +14,64 @@ type Props = React.PropsWithChildren<object>;
 const ConversationsLayout = ({ children }: Props) => {
   const conversations = useQuery(api.conversations.get);
 
+  // Add debugging
+  console.log("=== CONVERSATIONS DEBUG ===");
+  console.log("Conversations data:", conversations);
+  console.log("Number of conversations:", conversations?.length);
+  if (conversations) {
+    conversations.forEach((conv, index) => {
+      console.log(`Conversation ${index}:`, {
+        id: conv.conversation._id,
+        isGroup: conv.conversation.isGroup,
+        name: conv.conversation.name,
+        otherMember: conv.otherMember,
+        lastMessage: conv.lastMessage,
+      });
+    });
+  }
+
   return (
     <>
-      <ItemList title="Conversations" action={<  CreateGroupDialog/>}>
+      <ItemList title="Conversations" action={<CreateGroupDialog />}>
         {conversations ? (
           conversations.length === 0 ? (
-            <p className="h-full w-full flex items-center justify-center">
-              No Conversations Found
+            <p className="h-full w-full flex items-center justify-center text-muted-foreground">
+              No conversations yet. Start a conversation with a friend!
             </p>
           ) : (
-            conversations.map((conversations) => {
-              return conversations.conversation.isGroup ? (
+            conversations.map((conversationData) => {
+              console.log(
+                "Rendering conversation:",
+                conversationData.conversation._id
+              );
+              return conversationData.conversation.isGroup ? (
                 <GroupConversationItem
-                  key={conversations.conversation._id}
-                  id={conversations.conversation._id}
-                  name={conversations.conversation.name || ""}
-                  lastMessageSender={conversations.lastMessage?.sender}
-                  lastMessageContent={conversations.lastMessage?.content}
-                  unseenCount={conversations.unseenCount}
+                  key={conversationData.conversation._id}
+                  id={conversationData.conversation._id}
+                  name={conversationData.conversation.name || ""}
+                  lastMessageSender={conversationData.lastMessage?.sender}
+                  lastMessageContent={conversationData.lastMessage?.content}
+                  unseenCount={conversationData.unseenCount}
                 />
               ) : (
                 <DMConversationItem
-                  key={conversations.conversation._id}
-                  id={conversations.conversation._id}
-                  username={conversations.otherMember?.username || ""}
-                  imageUrl={conversations.otherMember?.imageUrl || ""}
-                  lastMessageSender={conversations.lastMessage?.sender}
-                  lastMessageContent={conversations.lastMessage?.content}
-                  unseenCount={conversations.unseenCount}
+                  key={conversationData.conversation._id}
+                  id={conversationData.conversation._id}
+                  username={
+                    conversationData.otherMember?.username || "Unknown User"
+                  }
+                  imageUrl={conversationData.otherMember?.imageUrl || ""}
+                  lastMessageSender={conversationData.lastMessage?.sender}
+                  lastMessageContent={conversationData.lastMessage?.content}
+                  unseenCount={conversationData.unseenCount}
                 />
               );
             })
           )
         ) : (
-          <Loader2 />
+          <div className="flex justify-center w-full">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
         )}
       </ItemList>
       {children}
