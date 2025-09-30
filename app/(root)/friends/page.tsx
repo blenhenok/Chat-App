@@ -1,6 +1,5 @@
 "use client";
 
-import ConversationFallback from "@/components/shared/conversations/ConversationFallback";
 import ItemList from "@/components/shared/item-list/ItemList";
 import React from "react";
 import AddFriendDialog from "./_components/AddFriendDialog";
@@ -9,6 +8,7 @@ import { useQuery } from "convex/react";
 import { Loader2 } from "lucide-react";
 import Request from "./_components/Request";
 import FriendItem from "./_components/FriendItem";
+import { Card } from "@/components/ui/card";
 
 const FriendsPage = () => {
   const friends = useQuery(api.friends.get);
@@ -38,7 +38,7 @@ const FriendsPage = () => {
       </ItemList>
 
       {/* Friend Requests Sidebar */}
-      <div className="hidden lg:block w-80 border-l">
+      <Card className="hidden lg:flex h-full w-full p-2 justify-between bg-secondary text-secondary-foreground">
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold">Friend Requests</h2>
           <p className="text-sm text-muted-foreground">
@@ -68,9 +68,7 @@ const FriendsPage = () => {
             </div>
           )}
         </div>
-      </div>
-
-      <ConversationFallback />
+      </Card>
     </>
   );
 };

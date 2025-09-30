@@ -37,7 +37,6 @@ const FriendItem = ({ id, username, imageUrl }: Props) => {
     } catch (error) {
       console.error("Failed to start conversation:", error);
 
-      // Proper error handling without 'any'
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
@@ -47,7 +46,7 @@ const FriendItem = ({ id, username, imageUrl }: Props) => {
   };
 
   return (
-    <Card className="p-3 w-full flex items-center justify-between hover:bg-secondary/50 transition-colors">
+    <Card className="p-3 w-full flex items-center justify-between hover:bg-secondary/50 transition-colors flex-row">
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <Avatar className="h-10 w-10 flex-shrink-0">
           <AvatarImage src={imageUrl} />

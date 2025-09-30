@@ -33,14 +33,17 @@ const Body = ({ members }: Props) => {
   const { mutate: markRead } = useMutationState(api.conversation.markRead);
 
   useEffect(() => {
-    if (messages && messages.length > 0) {
-      markRead({
-        conversationId,
-        messageId: messages[0].message._id,
-      });
-    }
-  }, [messages?.length, conversationId, markRead]);
+    const timeoutId = setTimeout(() => {
+      if (messages && messages.length > 0) {
+        markRead({
+          conversationId,
+          messageId: messages[0].message._id,
+        });
+      }
+    }, 300); // 300ms delay
 
+    return () => clearTimeout(timeoutId);
+  }, [messages?.length, conversationId, markRead]);
   const formatSeenBy = (names: string[]) => {
     switch (names.length) {
       case 1:

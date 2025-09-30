@@ -221,3 +221,74 @@ const getMessageContent = (type: string, content: string) => {
       return "[Non-text]";
   }
 };
+
+export const createGroup = mutation({
+  args: {
+    name: v.string(),
+    members: v.array(v.id("users")),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
+    console.log("=== CREATE GROUP MUTATION CALLED ===");
+    console.log("User identity:", identity.subject);
+    console.log("Group name:", args.name);
+    console.log("Members:", args.members);
+
+    const currentUser = await getUserByClerkId({
+      ctx,
+      clerkId: identity.subject,
+    });
+
+    if (!currentUser) {
+      console.log("User not found");
+      throw new ConvexError("User not found");
+    }
+
+    if (!args.members || args.members.length === 0) {
+      console.log("No members provided");
+      throw new ConvexError("You must select at least one member");
+    }
+
+    // Verify all member IDs exist
+    for (const memberId of args.members) {
+      const member = await ctx.db.get(memberId);
+      if (!member) {
+        console.log("Invalid member ID:", memberId);
+        throw new ConvexError(`Invalid member ID: ${memberId}`);
+      }
+      console.log("Member found:", member.username);
+    }
+
+    // Create group conversation
+    const conversationId = await ctx.db.insert("conversations", {
+      isGroup: true,
+      name: args.name,
+      lastMessageId: undefined,
+    });
+
+    console.log("Conversation created:", conversationId);
+
+    // Add creator
+    await ctx.db.insert("conversationMembers", {
+      conversationId,
+      memberId: currentUser._id,
+    });
+
+    // Add other members
+    for (const memberId of args.members) {
+      await ctx.db.insert("conversationMembers", {
+        conversationId,
+        memberId,
+      });
+    }
+
+    console.log("All members added to conversation");
+    console.log("=== CREATE GROUP COMPLETED ===");
+
+    return conversationId;
+  },
+});
