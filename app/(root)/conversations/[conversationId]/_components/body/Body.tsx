@@ -15,12 +15,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+// FIX: Define a proper Member type with required fields
+type Member = {
+  _id: Id<"users">;
+  username: string;
+  imageUrl?: string;
+  lastSeenMessageId?: Id<"messages">;
+};
+
 type Props = {
-  members: {
-    lastSeenMessageId?: Id<"messages">;
-    username?: string;
-    [key: string]: unknown;
-  }[];
+  members: Member[]; // FIX: Use the proper Member type instead of generic object
 };
 
 const Body = ({ members }: Props) => {
@@ -44,6 +48,7 @@ const Body = ({ members }: Props) => {
 
     return () => clearTimeout(timeoutId);
   }, [messages?.length, conversationId, markRead]);
+
   const formatSeenBy = (names: string[]) => {
     switch (names.length) {
       case 1:
@@ -61,12 +66,12 @@ const Body = ({ members }: Props) => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <p className="text-muted-foreground text-sm text-right">{`seen by ${names[0]} ans ${names[1]}, and ${names.length -2} more`}</p>
+                <p className="text-muted-foreground text-sm text-right">{`seen by ${names[0]} and ${names[1]}, and ${names.length - 2} more`}</p>
               </TooltipTrigger>
               <TooltipContent>
                 <ul>
                   {names.map((name, index) => {
-                    return <li key={index}>{name}</li>
+                    return <li key={index}>{name}</li>;
                   })}
                 </ul>
               </TooltipContent>
@@ -77,9 +82,11 @@ const Body = ({ members }: Props) => {
   };
 
   const getSeenMessage = (messageId: Id<"messages">) => {
+    // FIX: Add null check and proper typing
     const seenUsers = members
       .filter((member) => member.lastSeenMessageId === messageId)
-      .map((user) => user.username!.split(" ")[0]);
+      .map((user) => user.username.split(" ")[0]) // FIX: username is required now
+      .filter(Boolean); // Filter out any undefined usernames
 
     if (seenUsers.length === 0) return undefined;
     return formatSeenBy(seenUsers);

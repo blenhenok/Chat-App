@@ -12,8 +12,9 @@ import ChatInput from "./_components/input/ChatInput";
 import RemoveFriendDialog from "./_components/dialogs/RemoveFriendDialog";
 import DeleteGroupDialog from "./_components/dialogs/DeleteGroupDialog";
 import LeaveGroupDialog from "./_components/dialogs/LeaveGroupDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ← ADD useEffect
 import React from "react";
+import { useRouter } from "next/navigation"; // ← ADD useRouter
 
 type Props = {
   params: Promise<{
@@ -22,10 +23,8 @@ type Props = {
 };
 
 export default function ConversationPage({ params }: Props) {
-  // Use React.use() to unwrap the params promise (Next.js 15 recommended)
+  const router = useRouter(); // ← ADD router
   const { conversationId } = React.use(params);
-
-  // Convert string ID to Convex ID format
   const convexId = conversationId as Id<"conversations">;
 
   const conversation = useQuery(api.conversation.get, { id: convexId });
@@ -33,6 +32,19 @@ export default function ConversationPage({ params }: Props) {
   const [removeFriendDialogOpen, setRemoveFriendDialogOpen] = useState(false);
   const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
   const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
+
+  // ← ADD THIS useEffect TO HANDLE REDIRECT
+  useEffect(() => {
+    if (conversation === null) {
+      console.log("Conversation not found, redirecting to conversations list");
+      // Use setTimeout to avoid navigation during render
+      const timer = setTimeout(() => {
+        router.push("/conversations");
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [conversation, router]);
 
   if (conversation === undefined) {
     return (
@@ -44,26 +56,32 @@ export default function ConversationPage({ params }: Props) {
 
   if (conversation === null) {
     return (
-      <p className="w-full h-full flex items-center justify-center">
-        Conversation not Found
-      </p>
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">
+            Redirecting to conversations...
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
     <ConversationContainer>
+      {/* FIX: Use conversation._id instead of conversationId to ensure we're using the valid ID */}
       <DeleteGroupDialog
-        conversationId={conversationId as Id<"conversations">}
+        conversationId={conversation._id}
         open={deleteGroupDialogOpen}
         setOpen={setDeleteGroupDialogOpen}
       />
       <LeaveGroupDialog
-        conversationId={conversationId as Id<"conversations">}
+        conversationId={conversation._id}
         open={leaveGroupDialogOpen}
         setOpen={setLeaveGroupDialogOpen}
       />
       <RemoveFriendDialog
-        conversationId={conversationId as Id<"conversations">}
+        conversationId={conversation._id}
         open={removeFriendDialogOpen}
         setOpen={setRemoveFriendDialogOpen}
       />
